@@ -172,6 +172,7 @@ scheduler:
     platforms:
       - bcm2711-rpi-4-b
       - fvp-arm64
+      - qemu-arm64
 
   - job: wifi-basic
     event:
