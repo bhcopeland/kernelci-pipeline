@@ -34,6 +34,7 @@ fragments:
       - 'CONFIG_DRM_MSM=y'
       - 'CONFIG_DRM_I2C_ADV7511=y'
       - 'CONFIG_PWM_CROS_EC=y'
+      - 'CONFIG_BACKLIGHT_CLASS_DEVICE=y'
       - 'CONFIG_BACKLIGHT_PWM=y'
       - 'CONFIG_RESET_QCOM_PDC=y'
       - 'CONFIG_DRM_TI_SN65DSI86=y'
