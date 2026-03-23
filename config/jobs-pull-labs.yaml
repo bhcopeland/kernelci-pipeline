@@ -110,3 +110,13 @@ jobs:
       <<: *ltp-params-pull-labs
       tst_cmdfiles: "containers"
     kcidb_test_suite: ltp
+
+  kselftest-arm64-pull-labs:
+    template: generic.jinja2
+    kind: job
+    params:
+      test_method: kselftest
+      boot_commands: nfs
+      rootfs_ref: trixie-kselftest
+      collections: arm64
+    kcidb_test_suite: kselftest.arm64
