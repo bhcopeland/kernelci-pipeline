@@ -30,3 +30,83 @@ jobs:
       <<: *ltp-params-pull-labs
       tst_cmdfiles: "smoketest"
     kcidb_test_suite: ltp
+
+  ltp-syscalls-pull-labs:
+    template: ltp-pull-labs.jinja2
+    kind: job
+    params:
+      <<: *ltp-params-pull-labs
+      tst_cmdfiles: "syscalls"
+    kcidb_test_suite: ltp
+
+  ltp-fs-pull-labs:
+    template: ltp-pull-labs.jinja2
+    kind: job
+    params:
+      <<: *ltp-params-pull-labs
+      tst_cmdfiles: "fs"
+    kcidb_test_suite: ltp
+
+  ltp-mm-pull-labs:
+    template: ltp-pull-labs.jinja2
+    kind: job
+    params:
+      <<: *ltp-params-pull-labs
+      tst_cmdfiles: "mm"
+    kcidb_test_suite: ltp
+
+  ltp-io-pull-labs:
+    template: ltp-pull-labs.jinja2
+    kind: job
+    params:
+      <<: *ltp-params-pull-labs
+      tst_cmdfiles: "io"
+    kcidb_test_suite: ltp
+
+  ltp-ipc-pull-labs:
+    template: ltp-pull-labs.jinja2
+    kind: job
+    params:
+      <<: *ltp-params-pull-labs
+      tst_cmdfiles: "ipc"
+    kcidb_test_suite: ltp
+
+  ltp-sched-pull-labs:
+    template: ltp-pull-labs.jinja2
+    kind: job
+    params:
+      <<: *ltp-params-pull-labs
+      tst_cmdfiles: "sched"
+    kcidb_test_suite: ltp
+
+  ltp-cve-pull-labs:
+    template: ltp-pull-labs.jinja2
+    kind: job
+    params:
+      <<: *ltp-params-pull-labs
+      tst_cmdfiles: "cve"
+    kcidb_test_suite: ltp
+
+  ltp-net-tcp-pull-labs:
+    template: ltp-pull-labs.jinja2
+    kind: job
+    params:
+      <<: *ltp-params-pull-labs
+      tst_cmdfiles: "net.tcp_cmds"
+    kcidb_test_suite: ltp
+
+  ltp-cap-bounds-pull-labs:
+    template: ltp-pull-labs.jinja2
+    kind: job
+    params:
+      <<: *ltp-params-pull-labs
+      tst_cmdfiles: "cap_bounds"
+    kcidb_test_suite: ltp
+
+  ltp-containers-pull-labs:
+    template: ltp-pull-labs.jinja2
+    kind: job
+    params:
+      <<: *ltp-params-pull-labs
+      tst_cmdfiles: "containers"
+    kcidb_test_suite: ltp

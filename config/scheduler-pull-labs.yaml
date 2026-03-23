@@ -43,14 +43,74 @@ scheduler:
       - bcm2711-rpi-4-b
 
   - job: ltp-smoke-pull-labs
-    event:
+    event: &kbuild-gcc-14-arm64-nfsboot-node-event
       <<: *node-event-kbuild
       name: kbuild-gcc-14-arm64-nfsboot
-    runtime:
+    runtime: &pull-labs-demo-nfsboot-runtime
       type: pull_labs
       name: pull-labs-demo
     platforms:
       - cd8180-orion-o6
+      - qemu-arm64
+
+  - job: ltp-syscalls-pull-labs
+    event: *kbuild-gcc-14-arm64-nfsboot-node-event
+    runtime: *pull-labs-demo-nfsboot-runtime
+    platforms:
+      - qemu-arm64
+
+  - job: ltp-fs-pull-labs
+    event: *kbuild-gcc-14-arm64-nfsboot-node-event
+    runtime: *pull-labs-demo-nfsboot-runtime
+    platforms:
+      - qemu-arm64
+
+  - job: ltp-mm-pull-labs
+    event: *kbuild-gcc-14-arm64-nfsboot-node-event
+    runtime: *pull-labs-demo-nfsboot-runtime
+    platforms:
+      - qemu-arm64
+
+  - job: ltp-io-pull-labs
+    event: *kbuild-gcc-14-arm64-nfsboot-node-event
+    runtime: *pull-labs-demo-nfsboot-runtime
+    platforms:
+      - qemu-arm64
+
+  - job: ltp-ipc-pull-labs
+    event: *kbuild-gcc-14-arm64-nfsboot-node-event
+    runtime: *pull-labs-demo-nfsboot-runtime
+    platforms:
+      - qemu-arm64
+
+  - job: ltp-sched-pull-labs
+    event: *kbuild-gcc-14-arm64-nfsboot-node-event
+    runtime: *pull-labs-demo-nfsboot-runtime
+    platforms:
+      - qemu-arm64
+
+  - job: ltp-cve-pull-labs
+    event: *kbuild-gcc-14-arm64-nfsboot-node-event
+    runtime: *pull-labs-demo-nfsboot-runtime
+    platforms:
+      - qemu-arm64
+
+  - job: ltp-net-tcp-pull-labs
+    event: *kbuild-gcc-14-arm64-nfsboot-node-event
+    runtime: *pull-labs-demo-nfsboot-runtime
+    platforms:
+      - qemu-arm64
+
+  - job: ltp-cap-bounds-pull-labs
+    event: *kbuild-gcc-14-arm64-nfsboot-node-event
+    runtime: *pull-labs-demo-nfsboot-runtime
+    platforms:
+      - qemu-arm64
+
+  - job: ltp-containers-pull-labs
+    event: *kbuild-gcc-14-arm64-nfsboot-node-event
+    runtime: *pull-labs-demo-nfsboot-runtime
+    platforms:
       - qemu-arm64
 
   - job: baseline-x86-pull-labs-demo
