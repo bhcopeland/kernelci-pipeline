@@ -14,6 +14,14 @@ import sys
 import yaml
 from jsonschema import ValidationError, validate
 
+SECTIONS = (
+    "silicon_vendors",
+    "platform_vendors",
+    "processors",
+    "system_modules",
+    "platforms",
+)
+
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -33,8 +41,25 @@ def default_index_path():
     return os.path.join(repo_root, "config", "hardware_registry", "index.yaml")
 
 
-def validate_references(data, registry_file):
-    """Validate cross-references between sections in a registry file.
+def validate_entity_ids(data):
+    """Validate that each entity's id matches its collection key.
+
+    Returns a list of error strings (empty if all ids match).
+    """
+    errors = []
+    for section in SECTIONS:
+        for key, entity in (data.get(section) or {}).items():
+            entity_id = entity.get("id")
+            if entity_id is not None and entity_id != key:
+                errors.append(
+                    f"{section}[{key}].id = '{entity_id}' "
+                    f"does not match its key '{key}'"
+                )
+    return errors
+
+
+def validate_references(data):
+    """Validate cross-references between sections.
 
     Returns a list of error strings (empty if all references are valid).
     """
@@ -52,21 +77,6 @@ def validate_references(data, registry_file):
                 f"{section}[{entry_key}].{field} = '{value}' "
                 f"not found in {valid_set_name}"
             )
-
-    for section in (
-        "silicon_vendors",
-        "platform_vendors",
-        "processors",
-        "system_modules",
-        "platforms",
-    ):
-        for key, entity in data.get(section, {}).items():
-            entity_id = entity.get("id")
-            if entity_id is not None and entity_id != key:
-                errors.append(
-                    f"{section}[{key}].id = '{entity_id}' "
-                    f"does not match its key '{key}'"
-                )
 
     for key in data.get("processors", {}):
         check_ref(
@@ -101,6 +111,29 @@ def validate_references(data, registry_file):
     return errors
 
 
+def merge_registries(datasets):
+    """Merge per-file registry data into a single namespace.
+
+    Takes a list of (filename, data) pairs and returns (merged, errors).
+    The same entity id appearing in two files is an error.
+    """
+    merged = {section: {} for section in SECTIONS}
+    origin = {section: {} for section in SECTIONS}
+    errors = []
+    for filename, data in datasets:
+        for section in SECTIONS:
+            for key, entity in (data.get(section) or {}).items():
+                if key in merged[section]:
+                    errors.append(
+                        f"{section}[{key}] defined in both "
+                        f"{origin[section][key]} and {filename}"
+                    )
+                else:
+                    merged[section][key] = entity
+                    origin[section][key] = filename
+    return merged, errors
+
+
 def main():
     args = parse_args()
     index_path = os.path.abspath(args.index or default_index_path())
@@ -131,6 +164,7 @@ def main():
     print(f"Entries: {len(registries)}\n")
 
     all_passed = True
+    datasets = []
 
     for registry_file in registries:
         registry_path = os.path.normpath(os.path.join(index_dir, registry_file))
@@ -144,36 +178,42 @@ def main():
         try:
             with open(registry_path) as f:
                 data = yaml.safe_load(f)
-
             validate(instance=data, schema=schema)
-
-            ref_errors = validate_references(data, registry_file)
-            if ref_errors:
-                print("  FAIL: Reference errors")
-                for err in ref_errors:
-                    print(f"    {err}")
-                all_passed = False
-            else:
-                print("  OK")
-                print(
-                    f"  Silicon vendors:  {len(data.get('silicon_vendors', {}))}"
-                )
-                print(
-                    f"  Platform vendors: {len(data.get('platform_vendors', {}))}"
-                )
-                print(f"  Processors:       {len(data.get('processors', {}))}")
-                if "system_modules" in data:
-                    print(f"  System modules:   {len(data['system_modules'])}")
-                print(f"  Platforms:        {len(data.get('platforms', {}))}")
-
         except ValidationError as e:
             print("  FAIL: Validation error")
             print(f"    Message:     {e.message}")
             print(f"    Path:        {' -> '.join(map(str, e.path))}")
             print(f"    Schema path: {' -> '.join(map(str, e.schema_path))}")
             all_passed = False
+            print()
+            continue
+
+        id_errors = validate_entity_ids(data)
+        if id_errors:
+            print("  FAIL: Entity id errors")
+            for err in id_errors:
+                print(f"    {err}")
+            all_passed = False
+        else:
+            print("  OK")
+            print(f"  Silicon vendors:  {len(data.get('silicon_vendors', {}))}")
+            print(
+                f"  Platform vendors: {len(data.get('platform_vendors', {}))}"
+            )
+            print(f"  Processors:       {len(data.get('processors', {}))}")
+            if "system_modules" in data:
+                print(f"  System modules:   {len(data['system_modules'])}")
+            print(f"  Platforms:        {len(data.get('platforms', {}))}")
+            datasets.append((registry_file, data))
 
         print()
+
+    merged, merge_errors = merge_registries(datasets)
+    ref_errors = validate_references(merged)
+    for err in merge_errors + ref_errors:
+        print(f"MERGED REGISTRY ERROR: {err}")
+    if merge_errors or ref_errors:
+        all_passed = False
 
     if all_passed:
         print("All registry files passed validation.")

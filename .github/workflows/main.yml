@@ -60,6 +60,13 @@ jobs:
         run: |
           python tests/validate_yaml.py
 
+      - name: Validate hardware registry
+        if: matrix.python-version == '3.13'
+        run: |
+          pip install jsonschema pytest
+          python tests/hw_reg_checker.py
+          python -m pytest tests/test_hw_reg_checker.py -v
+
       - name: Run basic JWT test
         run: |
           python tests/validate_jwt.py
